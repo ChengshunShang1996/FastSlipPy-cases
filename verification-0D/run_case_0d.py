@@ -10,7 +10,7 @@ from fastslippy.utilities.math_util import MathUtil
 
 # --- Numerical parameters ---
 # lx = 40e3; % nature fault length
-lx = 0.2
+lx = 0.047
 
 # --- Material parameters ---
 Vp = 0 * 1e-9
@@ -21,11 +21,11 @@ G = rho * cs * cs
 eta = G / 2 / cs
 
 # --- Friction parameters ---
-mu0 = 0.594
+mu0 = 0.595
 V0 = 1e-6
-L = 2.5e-4  # characteristic slip distance
-a = 0.012
-b = 0.010
+L = 30e-6  # characteristic slip distance
+a = 0.006
+b = 0.004
 t_load = 2000
 
 # --- Initial condition ---
@@ -43,7 +43,7 @@ dt = 1e0
 yr = 365 * 24 * 60 * 60
 Vw = 1e30
 
-nt = 330000
+nt = 13000
 Um = np.zeros(nt)
 Vm = np.zeros(nt)
 taum = np.zeros(nt)
@@ -91,7 +91,8 @@ else:
     it_final = t_load
 
 # --- Second loop (up to nt) ---
-Vp = 1e-9
+dt = 1.0
+Vp = 1e-6
 lo = 1e-40
 for it in range(it_final + 1, nt + 1):
     idx = it - 1
@@ -118,37 +119,39 @@ for it in range(it_final + 1, nt + 1):
         V = x
 
     V = np.maximum(V, 1e-40)
+
+    load_v = 1e-6
     
     # 1-based index matching for the condition steps
-    if 15000 < it < 15010:
-        Vp = 0 * 1e-9
-    if 15010 < it < 18000:
-        Vp = 1e-9
+    if 4830 < it < 4840:
+        Vp = 0 * load_v
+    if 4840 < it < 5455:
+        Vp = load_v
     # 30s
-    if 18000 < it < 18030:
-        Vp = 0 * 1e-9
-    if 18030 < it < 21000:
-        Vp = 1e-9
+    if 5455 < it < 5485:
+        Vp = 0 * load_v
+    if 5485 < it < 6120:
+        Vp = load_v
     # 100s
-    if 21000 < it < 21100:
-        Vp = 0 * 1e-9
-    if 21100 < it < 24000:
-        Vp = 1e-9
+    if 6120 < it < 6220:
+        Vp = 0 * load_v
+    if 6220 < it < 6850:
+        Vp = load_v
     # 300s
-    if 24000 < it < 24300:
-        Vp = 0 * 1e-9
-    if 24300 < it < 27000:
-        Vp = 1e-9
+    if 6850 < it < 7150:
+        Vp = 0 * load_v
+    if 7150 < it < 7770:
+        Vp = load_v
     # 1000s
-    if 27000 < it < 27100:
-        Vp = 0 * 1e-9
-    if 27100 < it < 30000:
-        Vp = 1e-9
+    if 7770 < it < 8770:
+        Vp = 0 * load_v
+    if 8770 < it < 9375:
+        Vp = load_v
     # 3000s
-    if 30000 < it < 30300:
-        Vp = 0 * 1e-9
-    if 30300 < it < 33000:
-        Vp = 1e-9
+    if 9375 < it < 12375:
+        Vp = 0 * load_v
+    if 12375 < it < 13000:
+        Vp = load_v
 
     t = t + dt
     theta = theta + dt * (1 - V * theta / L)
@@ -176,14 +179,15 @@ with open(file_path, 'r') as f:
     for row in reader:
         x.append(float(row[0]))
         y.append(float(row[1]))
-plt.plot(x, y, '-', color='orange', linewidth=3)
+plt.plot(x, y, '-', color='orange', linewidth=2, label='Experimental data (Hunfeld et al., 2020)', alpha=0.8)
 
 
-plt.plot(Um * 1000, mu, 'k-', linewidth=1.5)
+plt.plot(Um * 1000, mu, '--', color='tab:blue', linewidth=1, label='Simulation (this study)')
 plt.xlabel('Slip displacement, U [mm]')
 plt.ylabel(r'Friction coefficient, $\mu$')
 #plt.title('Friction vs Slip Displacement')
 plt.xlim([1.0, 4.5])
 plt.ylim([0.5, 0.7])
+plt.legend()
 plt.tight_layout()
 plt.show()
