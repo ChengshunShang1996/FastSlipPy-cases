@@ -11,6 +11,7 @@ __license__     = "MIT License"
 
 from fastslippy import FastSlipPy
 from fastslippy.pre_processing.model_parameters import ModelParameters
+from fastslippy.pre_processing.grid import Grid
 
 class RunFastSlipPy(FastSlipPy):
     """
@@ -19,30 +20,34 @@ class RunFastSlipPy(FastSlipPy):
     def run(self):
         super().run()
 
+        self.grid.plot_grid()
+        self.grid.plot_mesh()
+
 if __name__ == "__main__":
     # Customise parameters here or leave all defaults
 
     params = ModelParameters(
         case_type = "groningen",
-        alpha = 70.0,
-        xsize = 2000.0,
-        ysize = 2000.0,
-        Nx = 201, Ny = 201,
-        Nt = 1000,
+        alpha = 60.0,
+        xsize = 320e3,
+        ysize = 80e3,
+        Nx = 641, Ny = 161,
+        #Nx = 141, Ny = 31,
+        Nt = 100,
         output_interval = 10,
-        checkpoint_interval = 1000,
-        rho = 2400.0,
+        checkpoint_interval = 100,
+        rho = 2670.0,
         rhof = 1150.0,
         rhog = 200.0,
         Vp = 0.0,
-        cs = 1650,
-        mu0 = 0.3,
-        nu = 0.15,
+        cs = 3464,
+        mu0 = 0.6,
+        nu = 0.25,
         #E=0.55e10, #according to k_critical = sigam * (b-a) / d_c, E = 1e10
         V0 = 1e-6,
         a0 = 0.01,
         b0 = 0.015,
-        L = 0.5,
+        L = 0.008,
         dt_init = 1.0,
         dt_max = 1e6,
         Vw = 1e90,
@@ -50,18 +55,14 @@ if __name__ == "__main__":
     )
 
     yr = 365 * 24 * 3600.0
-    params.loading.tload = 1000.0 * yr
+    params.loading.tload = 0.0 * yr
     params.loading.dPdt_pre = 0.0
-    params.loading.dPdt_post = -0.0127
+    params.loading.dPdt_post = 0.0
 
-    params.bc.left.ux.set_free()
-    params.bc.left.uy.set_free()
-    params.bc.right.ux.set_free()
-    params.bc.right.uy.set_free()
-    params.bc.bottom.ux.set_free()
-    params.bc.bottom.uy.set_fixed()
-    params.bc.top.ux.set_free()
-    params.bc.top.uy.set_fixed()
+    params.bc.left.set_fixed()
+    params.bc.right.set_fixed()
+    params.bc.bottom.set_fixed()
+    params.bc.top.set_free()
 
     params.layers.set_groningen()
 
